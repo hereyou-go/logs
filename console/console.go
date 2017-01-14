@@ -1,10 +1,11 @@
-package logs
+package console
 
 import (
 	"fmt"
 	"io"
 
 	"github.com/mattn/go-colorable"
+	"github.com/one-go/logs/common"
 )
 
 type Console struct {
@@ -21,20 +22,19 @@ func (c *Console) Output() io.Writer {
 	return c.output
 }
 
-func (c *Console) Log(entry *Entry) {
+func (c *Console) Color(colorName, s string) string {
+	setter := GetColorSetter(colorName)
+	if setter == nil {
+		return s
+	}
 
-	// entry := &Entry{
-	// 	Level:      level,
-	// 	IsTerminal: true,
-	// 	Time:       time.Now(),
-	// 	Message:    message,
-	// 	Stack:      debug.Stack(),
-	// }
+	return setter(true) + s + ResetSetter(true)
+}
 
-	msg := FormatLog(true, entry)
+func (c *Console) Log(entry *common.Entry) {
+	msg := FormatLog(c, entry)
 	_, err := fmt.Fprint(c.output, msg)
 	if err != nil {
 		panic(fmt.Errorf("[mano.logs.Console.Log] %v", err))
 	}
-
 }

@@ -1,4 +1,4 @@
-package logs
+package common
 
 import "runtime"
 
@@ -34,8 +34,7 @@ func (ex *Exception) Error() string {
 	if len(ex.message) == 0 {
 		return ex.cause.Error()
 	}
-	// panic(formatMessage(false, ex.message))
-	return formatMessage(false, ex.message...)
+	return FormatMessage(NoColor, ex.message...)
 }
 
 func getFrames(calldepth int) []*runtime.Frame {
@@ -67,12 +66,6 @@ func NewException(calldepth int, code string, cause error, message ...interface{
 		code:    code,
 		//stack:   debug.Stack(),
 	}
-}
-
-// NewError returns a Exception with the specified detail message and cause.
-// cause is a optional
-func NewError(cause error, message ...interface{}) *Exception {
-	return NewException(2, "", cause, message...)
 }
 
 func ToException(err interface{}, calldepth ...int) *Exception {

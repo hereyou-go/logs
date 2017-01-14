@@ -3,22 +3,26 @@ package logs
 import (
 	"os"
 	"strings"
+
+	"github.com/one-go/logs/common"
+	"github.com/one-go/logs/console"
+	"github.com/one-go/logs/level"
 )
 
 var rootLogger *Logger
 
 func init() {
-	rootLogger = NewLogger("root", NewConsole())
+	rootLogger = NewLogger("root", console.NewConsole())
 	rootLogger.calldepth = 3
 }
 
 /*****************************************/
 
-func GetProvider() Provider {
+func GetProvider() common.Provider {
 	return rootLogger.Provider()
 }
 
-func GetLevel() Level {
+func GetLevel() level.Level {
 	return rootLogger.Level()
 }
 
@@ -26,11 +30,11 @@ func IsLogStack() bool {
 	return rootLogger.IsLogStack()
 }
 
-func SetProvider(provider Provider) {
+func SetProvider(provider common.Provider) {
 	rootLogger.SetProvider(provider)
 }
 
-func SetLevel(level Level) {
+func SetLevel(level level.Level) {
 	rootLogger.SetLevel(level)
 }
 
@@ -85,11 +89,11 @@ func IsFatalEnabled() bool {
 /*****************************************/
 
 func Print(v ...interface{}) {
-	os.Stdout.WriteString(formatMessage(true, v...))
+	os.Stdout.WriteString(common.FormatMessage(common.NoColor, v...))
 }
 
 func Println(v ...interface{}) {
-	msg := formatMessage(true, v...)
+	msg := common.FormatMessage(common.NoColor, v...)
 	if !strings.HasSuffix(msg, "\n") {
 		msg += "\n"
 	}
@@ -100,4 +104,20 @@ func PanicIf(err error) {
 	if err != nil {
 		panic(NewError(err))
 	}
+}
+
+/*****************************************/
+
+// NewError returns a Exception with the specified detail message and cause.
+// cause is a optional
+func NewError(cause error, message ...interface{}) *common.Exception {
+	return common.NewException(2, "", cause, message...)
+}
+
+func NewException(calldepth int, code string, cause error, message ...interface{}) *common.Exception {
+	return common.NewException(calldepth, code, cause, message...)
+}
+
+func Exception(err interface{}, calldepth ...int) *common.Exception {
+	return common.ToException(err, calldepth...)
 }

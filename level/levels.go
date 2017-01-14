@@ -1,14 +1,14 @@
-package logs
+package level
 
 type Level uint8
 
 const (
-	LDEBUG Level = iota
-	LTRACE
-	LINFO
-	LWARN
-	LERROR
-	LFATAL
+	DEBUG Level = iota
+	TRACE
+	INFO
+	WARN
+	ERROR
+	FATAL
 )
 
 var labels = []string{"DEBUG", "TRACE", "INFO", "WARN", "ERROR", "FATAL"}

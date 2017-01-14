@@ -1,38 +1,25 @@
 package logs
 
 import (
-	"io"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/one-go/logs/common"
+	"github.com/one-go/logs/level"
 )
-
-type Entry struct {
-	Time       time.Time
-	Level      Level
-	Message    []interface{}
-	Caller     string
-	Line       int
-	Stack      []byte
-	StackTrace []*runtime.Frame
-}
-
-type Provider interface {
-	Output() io.Writer
-	Log(entry *Entry)
-}
 
 type Logger struct {
 	mu        sync.Mutex
 	name      string
-	level     Level
-	provider  Provider
+	level     level.Level
+	provider  common.Provider
 	logStack  bool
 	calldepth int
 }
 
-func NewLogger(name string, provider ...Provider) *Logger {
-	var p Provider
+func NewLogger(name string, provider ...common.Provider) *Logger {
+	var p common.Provider
 	if len(provider) > 0 && provider[0] != nil {
 		p = provider[0]
 	} else {
@@ -41,7 +28,7 @@ func NewLogger(name string, provider ...Provider) *Logger {
 
 	return &Logger{
 		name:      name,
-		level:     LERROR,
+		level:     level.ERROR,
 		provider:  p,
 		calldepth: 2,
 	}
@@ -51,11 +38,11 @@ func (l *Logger) Name() string {
 	return l.name
 }
 
-func (l *Logger) Provider() Provider {
+func (l *Logger) Provider() common.Provider {
 	return l.provider
 }
 
-func (l *Logger) Level() Level {
+func (l *Logger) Level() level.Level {
 	return l.level
 }
 
@@ -63,36 +50,36 @@ func (l *Logger) IsLogStack() bool {
 	return l.logStack
 }
 
-func (l *Logger) isEnabled(level Level) bool {
+func (l *Logger) isEnabled(level level.Level) bool {
 	return l.level <= level
 }
 
 func (l *Logger) IsDebugEnabled() bool {
-	return l.isEnabled(LDEBUG)
+	return l.isEnabled(level.DEBUG)
 }
 
 func (l *Logger) IsInfoEnabled() bool {
-	return l.isEnabled(LINFO)
+	return l.isEnabled(level.INFO)
 }
 
 func (l *Logger) IsWarnEnabled() bool {
-	return l.isEnabled(LWARN)
+	return l.isEnabled(level.WARN)
 }
 
 func (l *Logger) IsErrorEnabled() bool {
-	return l.isEnabled(LERROR)
+	return l.isEnabled(level.ERROR)
 }
 
 func (l *Logger) IsFatalEnabled() bool {
-	return l.isEnabled(LFATAL)
+	return l.isEnabled(level.FATAL)
 }
 
-func (l *Logger) log(level Level, message ...interface{}) {
+func (l *Logger) log(level level.Level, message ...interface{}) {
 	if !l.isEnabled(level) {
 		return
 	}
 
-	entry := &Entry{
+	entry := &common.Entry{
 		Level:   level,
 		Time:    time.Now(),
 		Message: message,
@@ -106,34 +93,34 @@ func (l *Logger) log(level Level, message ...interface{}) {
 		entry.Line = 0
 	}
 
-	if l.logStack || level >= LERROR {
-		entry.StackTrace = getFrames(l.calldepth)
-	}
+	// if l.logStack || level >= level.ERROR {
+	// 	entry.StackTrace = getFrames(l.calldepth)
+	// }
 
 	l.provider.Log(entry)
 }
 
 func (l *Logger) Debug(message ...interface{}) {
-	l.log(LDEBUG, message...)
+	l.log(level.DEBUG, message...)
 }
 
 func (l *Logger) Info(message ...interface{}) {
-	l.log(LINFO, message...)
+	l.log(level.INFO, message...)
 }
 
 func (l *Logger) Warn(message ...interface{}) {
-	l.log(LWARN, message...)
+	l.log(level.WARN, message...)
 }
 
 func (l *Logger) Error(message ...interface{}) {
-	l.log(LERROR, message...)
+	l.log(level.ERROR, message...)
 }
 
 func (l *Logger) Fatal(message ...interface{}) {
-	l.log(LFATAL, message...)
+	l.log(level.FATAL, message...)
 }
 
-func (l *Logger) SetProvider(provider Provider) {
+func (l *Logger) SetProvider(provider common.Provider) {
 	if provider == nil {
 		panic("[mano.logs.SetProvider] Invalid argument: provider")
 	}
@@ -146,7 +133,7 @@ func (l *Logger) SetProvider(provider Provider) {
 
 }
 
-func (l *Logger) SetLevel(level Level) {
+func (l *Logger) SetLevel(level level.Level) {
 
 	l.mu.Lock()
 
