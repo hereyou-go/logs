@@ -102,7 +102,7 @@ func Println(v ...interface{}) {
 
 func PanicIf(err error) {
 	if err != nil {
-		panic(NewError(err))
+		panic(WrapError(err))
 	}
 }
 
@@ -110,8 +110,8 @@ func PanicIf(err error) {
 
 // NewError returns a Exception with the specified detail message and cause.
 // cause is a optional
-func NewError(cause error, message ...interface{}) *common.Exception {
-	return common.NewException(2, "", cause, message...)
+func NewError(code string, message ...interface{}) *common.Exception {
+	return common.NewException(2, code, nil, message...)
 }
 
 func NewException(calldepth int, code string, cause error, message ...interface{}) *common.Exception {
@@ -120,4 +120,12 @@ func NewException(calldepth int, code string, cause error, message ...interface{
 
 func Exception(err interface{}, calldepth ...int) *common.Exception {
 	return common.ToException(err, calldepth...)
+}
+
+func WrapError(cause error, code ...string) *common.Exception {
+	c := ""
+	if len(code) > 0 {
+		c = code[0]
+	}
+	return common.NewException(2, c, cause)
 }
