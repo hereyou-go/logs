@@ -74,7 +74,7 @@ func (l *Logger) IsFatalEnabled() bool {
 	return l.isEnabled(level.FATAL)
 }
 
-func (l *Logger) log(level level.Level, message ...interface{}) {
+func (l *Logger) Log(calldepth int, level level.Level, message ...interface{}) {
 	if !l.isEnabled(level) {
 		return
 	}
@@ -85,14 +85,19 @@ func (l *Logger) log(level level.Level, message ...interface{}) {
 		Message: message,
 	}
 
-	if pc, _, line, ok := runtime.Caller(l.calldepth); ok {
-		entry.Caller = runtime.FuncForPC(pc).Name()
-		entry.Line = line
+	if pc, file, line, ok := runtime.Caller(calldepth); ok {
+		entry.Frame = &common.TraceFrame{
+			Frame: runtime.Frame{
+				PC:   pc,
+				File: file,
+				Line: line,
+			},
+		}
 	} else {
-		entry.Caller = "???"
-		entry.Line = 0
+		entry.Frame = &common.TraceFrame{}
 	}
-
+	// entry.Caller = runtime.FuncForPC(pc).Name()
+	//
 	// if l.logStack || level >= level.ERROR {
 	// 	entry.StackTrace = getFrames(l.calldepth)
 	// }
@@ -100,25 +105,25 @@ func (l *Logger) log(level level.Level, message ...interface{}) {
 	l.provider.Log(entry)
 }
 
-func (l *Logger) Debug(message ...interface{}) {
-	l.log(level.DEBUG, message...)
-}
+// func (l *Logger) Debug(message ...interface{}) {
+// 	l.log(level.DEBUG, message...)
+// }
 
-func (l *Logger) Info(message ...interface{}) {
-	l.log(level.INFO, message...)
-}
+// func (l *Logger) Info(message ...interface{}) {
+// 	l.log(level.INFO, message...)
+// }
 
-func (l *Logger) Warn(message ...interface{}) {
-	l.log(level.WARN, message...)
-}
+// func (l *Logger) Warn(message ...interface{}) {
+// 	l.log(level.WARN, message...)
+// }
 
-func (l *Logger) Error(message ...interface{}) {
-	l.log(level.ERROR, message...)
-}
+// func (l *Logger) Error(message ...interface{}) {
+// 	l.log(level.ERROR, message...)
+// }
 
-func (l *Logger) Fatal(message ...interface{}) {
-	l.log(level.FATAL, message...)
-}
+// func (l *Logger) Fatal(message ...interface{}) {
+// 	l.log(level.FATAL, message...)
+// }
 
 func (l *Logger) SetProvider(provider common.Provider) {
 	if provider == nil {

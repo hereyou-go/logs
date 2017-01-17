@@ -9,6 +9,10 @@ import (
 	"github.com/one-go/logs/level"
 )
 
+const (
+	defCalldepth = 2
+)
+
 var rootLogger *Logger
 
 func init() {
@@ -45,23 +49,23 @@ func SetLogStack(logStack bool) {
 /*****************************************/
 
 func Debug(message ...interface{}) {
-	rootLogger.Debug(message...)
+	rootLogger.Log(defCalldepth, level.DEBUG, message...)
 }
 
 func Info(message ...interface{}) {
-	rootLogger.Info(message...)
+	rootLogger.Log(defCalldepth, level.INFO, message...)
 }
 
 func Warn(message ...interface{}) {
-	rootLogger.Warn(message...)
+	rootLogger.Log(defCalldepth, level.WARN, message...)
 }
 
 func Error(message ...interface{}) {
-	rootLogger.Error(message...)
+	rootLogger.Log(defCalldepth, level.ERROR, message...)
 }
 
 func Fatal(message ...interface{}) {
-	rootLogger.Fatal(message...)
+	rootLogger.Log(defCalldepth, level.FATAL, message...)
 }
 
 /*****************************************/
@@ -102,7 +106,10 @@ func Println(v ...interface{}) {
 
 func PanicIf(err error) {
 	if err != nil {
-		panic(WrapError(err))
+		if _, ok := err.(*common.Exception); !ok {
+			err = common.NewException(3, "", err)
+		}
+		panic(err)
 	}
 }
 
@@ -111,21 +118,30 @@ func PanicIf(err error) {
 // NewError returns a Exception with the specified detail message and cause.
 // cause is a optional
 func NewError(code string, message ...interface{}) *common.Exception {
-	return common.NewException(2, code, nil, message...)
+	return common.NewException(3, code, nil, message...)
 }
 
-func NewException(calldepth int, code string, cause error, message ...interface{}) *common.Exception {
-	return common.NewException(calldepth, code, cause, message...)
+func NewCauseError(code string, cause error, message ...interface{}) *common.Exception {
+	return common.NewException(3, code, cause, message...)
 }
 
-func Exception(err interface{}, calldepth ...int) *common.Exception {
-	return common.ToException(err, calldepth...)
-}
+// func Exception(err interface{}, calldepth ...int) *common.Exception {
+// 	depth := 4
+// 	if len(calldepth) > 0 {
+// 		depth = calldepth[0]
+// 	}
+// 	return common.ToException(err, depth)
+// }
 
 func WrapError(cause error, code ...string) *common.Exception {
+	if cause == nil {
+		return nil
+	} else if ex, ok := cause.(*common.Exception); ok {
+		return ex
+	}
 	c := ""
 	if len(code) > 0 {
 		c = code[0]
 	}
-	return common.NewException(2, c, cause)
+	return common.NewException(3, c, cause)
 }

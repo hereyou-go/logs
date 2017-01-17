@@ -7,77 +7,27 @@ import (
 	"github.com/one-go/logs/common"
 )
 
-func getFilename(file string) string {
-	if file == "" {
-		return "???"
-	}
-	last := strings.LastIndex(file, "/")
-	if last < 0 {
-		last = strings.LastIndex(file, "\\")
-	}
-	if last < 0 {
-		return file
-	}
-	return file[last+1:]
-}
-
 func FormatLog(provider common.Provider, entry *common.Entry) string {
 	if entry == nil {
 		return ""
 	}
-	//fmt.Fprintf(provider.Output(),)
-	// msg := entry.Time.Format("2006-01-02 15:04:05")
-	// msg += " "
-	msg := provider.Color("cyan", fmt.Sprintf("%s %s %s:%d\n", entry.Time.Format("2006-01-02 15:04:05"), entry.Level.Lable(), entry.Caller, entry.Line))
-	// msg += "\n"
-	// msg += fmt.Sprintf("%s%s%s:", colorForLevel(entry.Level, isTerminal), entry.Level.Lable(), ResetSetter(isTerminal))
-	// msg += provider.Color("cyan", fmt.Sprintf("%s:%d\n", entry.Caller, entry.Line))
-	if ex, ok := entry.Message[0].(*common.Exception); ok {
-		msg += ex.Error()
+	msg := provider.Color("cyan", fmt.Sprintf("%s %s %s:%d\n", entry.Time.Format("2006-01-02 15:04:05"), entry.Level.Lable(), entry.Frame.Caller(), entry.Frame.Line))
+	var ex *common.Exception
+	args := entry.Message
+	if e, ok := args[0].(*common.Exception); ok {
+		ex = e
+		args = args[1:]
+	}
+
+	if len(args) > 0 {
+		msg += common.FormatMessage(provider.Color, args...)
 		if !strings.HasSuffix(msg, "\n") {
 			msg += "\n"
 		}
-		i := 0
-		max := len(ex.Trace())
-		for i < max {
-			frame := ex.Trace()[i]
-			if strings.EqualFold(frame.Function, "runtime.goexit") {
-				break
-			}
+	}
 
-			msg += fmt.Sprintf("\tat %s(%s:%d)\n", frame.Function, getFilename(frame.File), frame.Line)
-
-			i++
-		}
-
-		//msg += string(ex.Stack())
-		if !strings.HasSuffix(msg, "\n") {
-			msg += "\n"
-		}
-
-	} else {
-		msg += common.FormatMessage(provider.Color, entry.Message...)
-		if !strings.HasSuffix(msg, "\n") {
-			msg += "\n"
-		}
-
-		if entry.StackTrace != nil && len(entry.StackTrace) > 0 {
-			i := 0
-			max := len(entry.StackTrace)
-			for i < max {
-				frame := entry.StackTrace[i]
-				if strings.EqualFold(frame.Function, "runtime.goexit") {
-					break
-				}
-
-				msg += fmt.Sprintf("\tat %s(%s:%d)\n", frame.Function, getFilename(frame.File), frame.Line)
-
-				i++
-			}
-			if !strings.HasSuffix(msg, "\n") {
-				msg += "\n"
-			}
-		}
+	if ex != nil {
+		msg += common.ExceptionString(ex, provider.Color)
 	}
 
 	return msg

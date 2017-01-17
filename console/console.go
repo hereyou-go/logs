@@ -18,16 +18,11 @@ func NewConsole() *Console {
 	}
 }
 
-func (c *Console) Output() io.Writer {
-	return c.output
-}
-
 func (c *Console) Color(colorName, s string) string {
 	setter := GetColorSetter(colorName)
 	if setter == nil {
 		return s
 	}
-
 	return setter(true) + s + ResetSetter(true)
 }
 
@@ -37,4 +32,8 @@ func (c *Console) Log(entry *common.Entry) {
 	if err != nil {
 		panic(fmt.Errorf("[mano.logs.Console.Log] %v", err))
 	}
+}
+
+func (c *Console) Write(p []byte) (n int, err error) {
+	return c.output.Write(p)
 }
