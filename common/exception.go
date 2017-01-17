@@ -17,10 +17,19 @@ func (ex *Exception) Code() string {
 	return ex.code
 }
 
-func (ex *Exception) Message() []interface{} {
+func (ex *Exception) Messages() []interface{} {
 	return ex.message
 }
 
+func (ex *Exception) Message() string {
+	if len(ex.message) != 0 {
+		return FormatMessage(NoColor, ex.message...)
+	}
+	if err, ok := ex.Cause().(*Exception); ok {
+		return err.Message()
+	}
+	return ex.Cause().Error()
+}
 func (ex *Exception) Trace() []*TraceFrame {
 	return ex.frames
 }
