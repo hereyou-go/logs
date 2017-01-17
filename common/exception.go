@@ -17,7 +17,7 @@ func (ex *Exception) Code() string {
 	return ex.code
 }
 
-func (ex *Exception) Messages() []interface{} {
+func (ex *Exception) Arguments() []interface{} {
 	return ex.message
 }
 
