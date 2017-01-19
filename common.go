@@ -125,14 +125,6 @@ func NewCauseError(code string, cause error, message ...interface{}) *common.Exc
 	return common.NewException(3, code, cause, message...)
 }
 
-// func Exception(err interface{}, calldepth ...int) *common.Exception {
-// 	depth := 4
-// 	if len(calldepth) > 0 {
-// 		depth = calldepth[0]
-// 	}
-// 	return common.ToException(err, depth)
-// }
-
 func WrapError(cause error, code ...string) *common.Exception {
 	if cause == nil {
 		return nil
