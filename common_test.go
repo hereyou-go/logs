@@ -3,7 +3,7 @@ package logs
 import (
 	"testing"
 
-	"github.com/one-go/logs/level"
+	"github.com/hereyou-go/logs/level"
 )
 
 func TestLog(t *testing.T) {

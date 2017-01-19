@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/one-go/logs/common"
+	"github.com/hereyou-go/logs/common"
 )
 
 func FormatLog(provider common.Provider, entry *common.Entry) string {

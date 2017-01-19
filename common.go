@@ -4,9 +4,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/one-go/logs/common"
-	"github.com/one-go/logs/console"
-	"github.com/one-go/logs/level"
+	"github.com/hereyou-go/logs/common"
+	"github.com/hereyou-go/logs/console"
+	"github.com/hereyou-go/logs/level"
 )
 
 const (

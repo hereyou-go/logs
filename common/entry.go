@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/one-go/logs/level"
+	"github.com/hereyou-go/logs/level"
 )
 
 type TraceFrame struct {

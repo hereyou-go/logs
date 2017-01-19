@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/hereyou-go/logs/common"
 	"github.com/mattn/go-colorable"
-	"github.com/one-go/logs/common"
 )
 
 type Console struct {
