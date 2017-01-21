@@ -74,6 +74,13 @@ func (l *Logger) IsFatalEnabled() bool {
 	return l.isEnabled(level.FATAL)
 }
 
+// Log 将根据给定参数记录日志。
+// calldepth 是将要(或)记录的堆栈深度。
+// level 日志的级别。
+// message 日志信息,这是一个复合的参数(主要是因为GO没有重载)：
+// 1.如果第1个参数是 error 类型则只使用这一个，其它忽略或报异常。
+// 2.如果第1个参数是 string 类型则可格式化输出，其它为其参数。
+// 3.如果最后1个参数是 error 类型则将其附加到已经格式化的消息后面，该处理主要与第2种方式结合使用。
 func (l *Logger) Log(calldepth int, level level.Level, message ...interface{}) {
 	if !l.isEnabled(level) {
 		return
