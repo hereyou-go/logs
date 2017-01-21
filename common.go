@@ -125,6 +125,20 @@ func NewCauseError(code string, cause error, message ...interface{}) *common.Exc
 	return common.NewException(3, code, cause, message...)
 }
 
+func Wrap(cause error, code ...string) *common.Exception {
+	if cause == nil {
+		return nil
+	} else if ex, ok := cause.(*common.Exception); ok {
+		return ex
+	}
+	c := ""
+	if len(code) > 0 {
+		c = code[0]
+	}
+	return common.NewException(3, c, cause)
+}
+
+// WrapError is deprecated.
 func WrapError(cause error, code ...string) *common.Exception {
 	if cause == nil {
 		return nil
