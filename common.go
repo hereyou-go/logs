@@ -104,10 +104,13 @@ func Println(v ...interface{}) {
 	os.Stdout.WriteString(msg)
 }
 
-func PanicIf(err error) {
+// PanicIf is converted to an Exception and Panic (if err is not nil).
+func PanicIf(err interface{}) {
 	if err != nil {
-		if _, ok := err.(*common.Exception); !ok {
-			err = common.NewException(3, "", err)
+		if e, ok := err.(error); ok {
+			if _, ok := e.(*common.Exception); !ok {
+				err = common.NewException(3, "", e)
+			}
 		}
 		panic(err)
 	}
