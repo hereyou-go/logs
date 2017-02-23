@@ -94,7 +94,7 @@ func strTraces(traces []*TraceFrame) string {
 		for i < max {
 			frame := traces[i]
 			caller := frame.Caller()
-			if strings.EqualFold(caller, "runtime.goexit") {
+			if strings.EqualFold(caller, "runtime.main") || strings.EqualFold(caller, "runtime.goexit") { //skip runtime.?
 				break
 			}
 			msg += fmt.Sprintf("\tat %s(%s:%d)\n", caller, getFilename(frame.File), frame.Line)
